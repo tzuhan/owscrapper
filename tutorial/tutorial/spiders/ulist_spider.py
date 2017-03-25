@@ -5,6 +5,10 @@ from scrapy.http import HtmlResponse
 hero_dict={'roadhog': 1}#, 'junkrat': 2, 'lcio': 3, 'soldier-76': 4, 'zarya': 5, 'mccree': 6, 'tracer': 7, 'reaper': 8, 'widowmaker': 9, 'winston': 10, 'pharah': 11, 'reinhardt': 12, 'symmetra': 13, 'torbjrn': 14, 'bastion': 15, 'hanzo': 16, 'mercy': 17, 'zenyatta': 18, 'mei': 20, 'genji': 21, 'd-va': 22, 'ana': 23, 'sombra': 24}#, 'orisa': 25}
 hero_name_dict={v: k for k, v in hero_dict.items()}
 add_num=50
+rank_name = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Master', 'Grandmaster']
+rank_score_list = [1, 1500, 2000, 2500, 3000, 3500, 4000]
+rank_count = [0]*len(rank_score_list)
+
 class QuotesSpider(scrapy.Spider):
     name = "ulist"
 
@@ -37,8 +41,12 @@ class QuotesSpider(scrapy.Spider):
                 time = int(row.css("div.table-main-value strong::text").re(r'(\d+) *')[0])
                 user_num += 1
                 f.write('{:5}, {:20}, {:40}, {:>4}\n'.format(rank, name, link, time))
-            if (user_num < 100) :
-                return self.create_ajax_request(hero_id, user_num+add_num)
+                for index, value in enumerate(rank_score_list):
+                    if value > rank:
+                        rank_count[index-1] += 1
+                        break
+            #if (user_num < 100) :
+            #    yield self.create_ajax_request(hero_id, user_num+add_num)
         #self.log('Saved file %s' % filename)
 
     def parse2(self, response):
@@ -58,8 +66,8 @@ class QuotesSpider(scrapy.Spider):
                     continue
                 rank = int(row.css("span.table-name-block>small>strong::text").extract_first().replace(',', ''))
                 time = int(row.css("div.table-main-value strong::text").re(r'(\d+) *')[0])
-                print(name, link, area, rank, time)
-                f.write('{:5}, {:20}, {:40}, {:>4}\n'.format(rank, name, link, time))
+                #print(name, link, area, rank, time)
+                #f.write('{:5}, {:20}, {:40}, {:>4}\n'.format(rank, name, link, time))
             #if (line of %s.csv < 100) :
                 #yield self.create_ajax_request(user_num + add_num)
         #self.log('Saved file %s' % filename)
